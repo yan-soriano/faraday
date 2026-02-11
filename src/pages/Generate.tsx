@@ -1,13 +1,23 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Download, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { AngleUploadSlot } from "@/components/AngleUploadSlot";
 import { CatalogUploadArea } from "@/components/CatalogUploadArea";
 import { templates } from "@/lib/templates";
+
+const PLACEHOLDER_VIDEO = "https://www.w3schools.com/html/mov_bbb.mp4";
 
 const ANGLE_LABELS = ["Front", "Back", "Left", "Right"];
 
@@ -20,6 +30,10 @@ const Generate = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(preselectedId);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [resultModalOpen, setResultModalOpen] = useState(false);
+  const [resultVideoUrl, setResultVideoUrl] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const allAnglesUploaded = angles.every(Boolean);
   const canGenerate = allAnglesUploaded && !!selectedTemplate;
@@ -35,6 +49,7 @@ const Generate = () => {
   const handleGenerate = async () => {
     if (!canGenerate) return;
     setLoading(true);
+    setProgress(0);
 
     const payload = {
       angles: angles.map((f) => f!.name),
@@ -44,10 +59,43 @@ const Generate = () => {
     };
     console.log("Generate Reel payload:", payload);
 
-    await new Promise((r) => setTimeout(r, 2000));
+    // Simulate progress over ~4 seconds
+    const duration = 4000;
+    const interval = 80;
+    let elapsed = 0;
+    await new Promise<void>((resolve) => {
+      const timer = setInterval(() => {
+        elapsed += interval;
+        const p = Math.min(Math.round((elapsed / duration) * 100), 100);
+        setProgress(p);
+        if (elapsed >= duration) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, interval);
+    });
+
     setLoading(false);
-    toast({ title: "Reel generation started!", description: "Your Reel is being processed. Check My Reels for progress." });
+    setProgress(100);
+    setResultVideoUrl(PLACEHOLDER_VIDEO);
+    setResultModalOpen(true);
+    toast({ title: "Reel generated!", description: "Your Reel is ready to preview and download." });
   };
+
+  const handleDownload = () => {
+    if (!resultVideoUrl) return;
+    const a = document.createElement("a");
+    a.href = resultVideoUrl;
+    a.download = "reel.mp4";
+    a.target = "_blank";
+    a.click();
+  };
+
+  useEffect(() => {
+    if (resultModalOpen && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [resultModalOpen]);
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -77,6 +125,17 @@ const Generate = () => {
             <CatalogUploadArea files={catalog} onFilesChange={setCatalog} className="flex-1 min-h-[calc(4*5rem+3*0.75rem)]" />
           </div>
 
+          {/* Progress bar */}
+          {loading && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Generating your Reel…</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+          )}
+
           {/* Prompt + Generate */}
           <div className="flex gap-2">
             <Input
@@ -87,7 +146,7 @@ const Generate = () => {
             />
             <Button onClick={handleGenerate} disabled={!canGenerate || loading} className="gap-2 shrink-0">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              Generate
+              {loading ? `${progress}%` : "Generate"}
             </Button>
           </div>
         </div>
@@ -114,6 +173,34 @@ const Generate = () => {
           </div>
         </div>
       </div>
+
+      {/* Result Modal */}
+      <Dialog open={resultModalOpen} onOpenChange={setResultModalOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Your Reel is Ready</DialogTitle>
+            <DialogDescription>Preview and download your generated fashion Reel.</DialogDescription>
+          </DialogHeader>
+          {resultVideoUrl && (
+            <div className="space-y-4">
+              <div className="rounded-lg overflow-hidden bg-black aspect-video">
+                <video
+                  ref={videoRef}
+                  src={resultVideoUrl}
+                  controls
+                  autoPlay
+                  loop
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <Button onClick={handleDownload} className="w-full gap-2">
+                <Download className="h-4 w-4" />
+                Download Reel
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
