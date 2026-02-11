@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
 import Generate from "./pages/Generate";
+import GeneratePosts from "./pages/GeneratePosts";
 import Templates from "./pages/Templates";
 import ReelHistory from "./pages/ReelHistory";
 import Subscription from "./pages/Subscription";
@@ -24,6 +25,7 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Index />} />
             <Route path="/generate" element={<Generate />} />
+            <Route path="/generate-posts" element={<GeneratePosts />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/history" element={<ReelHistory />} />
             <Route path="/subscription" element={<Subscription />} />
