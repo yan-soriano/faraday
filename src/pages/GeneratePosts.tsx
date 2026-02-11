@@ -1,12 +1,22 @@
 import { useState } from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { AngleUploadSlot } from "@/components/AngleUploadSlot";
 import { CatalogUploadArea } from "@/components/CatalogUploadArea";
 import { postTemplates, type Template } from "@/lib/templates";
+
+const PLACEHOLDER_VIDEO = "https://www.instagram.com/reel/DPtn064CRsz/embed";
 
 const ANGLE_LABELS = ["Front", "Back", "Left", "Right"];
 
@@ -16,6 +26,8 @@ const GeneratePosts = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [resultModalOpen, setResultModalOpen] = useState(false);
 
   const allAnglesUploaded = angles.every(Boolean);
   const canGenerate = allAnglesUploaded && !!selectedTemplate;
@@ -31,6 +43,7 @@ const GeneratePosts = () => {
   const handleGenerate = async () => {
     if (!canGenerate) return;
     setLoading(true);
+    setProgress(0);
 
     const payload = {
       images: angles.map((f) => f!.name),
@@ -40,9 +53,25 @@ const GeneratePosts = () => {
     };
     console.log("Generate Post payload:", payload);
 
-    await new Promise((r) => setTimeout(r, 2000));
+    const duration = 4000;
+    const interval = 80;
+    let elapsed = 0;
+    await new Promise<void>((resolve) => {
+      const timer = setInterval(() => {
+        elapsed += interval;
+        const p = Math.min(Math.round((elapsed / duration) * 100), 100);
+        setProgress(p);
+        if (elapsed >= duration) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, interval);
+    });
+
     setLoading(false);
-    toast({ title: "Post generation started!", description: "Your post is being created." });
+    setProgress(100);
+    setResultModalOpen(true);
+    toast({ title: "Post generated!", description: "Your post is ready to preview." });
   };
 
   return (
@@ -70,6 +99,17 @@ const GeneratePosts = () => {
             <CatalogUploadArea files={catalog} onFilesChange={setCatalog} className="flex-1 min-h-[calc(4*5rem+3*0.75rem)]" />
           </div>
 
+          {/* Progress bar */}
+          {loading && (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Generating your post…</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+          )}
+
           <div className="flex gap-2">
             <Input
               value={prompt}
@@ -79,7 +119,7 @@ const GeneratePosts = () => {
             />
             <Button onClick={handleGenerate} disabled={!canGenerate || loading} className="gap-2 shrink-0">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              Generate
+              {loading ? `${progress}%` : "Generate"}
             </Button>
           </div>
         </div>
@@ -108,6 +148,30 @@ const GeneratePosts = () => {
           </div>
         </div>
       </div>
+
+      {/* Result Modal */}
+      <Dialog open={resultModalOpen} onOpenChange={setResultModalOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Your Post is Ready</DialogTitle>
+            <DialogDescription>Preview your generated post below.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg overflow-hidden bg-black aspect-video">
+              <iframe
+                src={PLACEHOLDER_VIDEO}
+                className="w-full h-full"
+                allowFullScreen
+                allow="autoplay; encrypted-media"
+              />
+            </div>
+            <Button onClick={() => setResultModalOpen(false)} className="w-full gap-2">
+              <Download className="h-4 w-4" />
+              Download Post
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

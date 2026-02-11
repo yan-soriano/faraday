@@ -17,7 +17,7 @@ import { AngleUploadSlot } from "@/components/AngleUploadSlot";
 import { CatalogUploadArea } from "@/components/CatalogUploadArea";
 import { templates } from "@/lib/templates";
 
-const PLACEHOLDER_VIDEO = "https://www.w3schools.com/html/mov_bbb.mp4";
+const PLACEHOLDER_VIDEO = "https://www.instagram.com/reel/DPtn064CRsz/embed";
 
 const ANGLE_LABELS = ["Front", "Back", "Left", "Right"];
 
@@ -184,13 +184,11 @@ const Generate = () => {
           {resultVideoUrl && (
             <div className="space-y-4">
               <div className="rounded-lg overflow-hidden bg-black aspect-video">
-                <video
-                  ref={videoRef}
+                <iframe
                   src={resultVideoUrl}
-                  controls
-                  autoPlay
-                  loop
-                  className="w-full h-full object-contain"
+                  className="w-full h-full"
+                  allowFullScreen
+                  allow="autoplay; encrypted-media"
                 />
               </div>
               <Button onClick={handleDownload} className="w-full gap-2">
