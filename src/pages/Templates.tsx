@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,36 +40,38 @@ const Templates = () => {
           <TabsTrigger value="photo">Photo Templates</TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="mt-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+      <TabsContent value={activeTab} className="mt-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((t) => (
-              <Card
+              <div
                 key={t.id}
-                className="cursor-pointer hover:border-primary/40 transition-colors overflow-hidden"
+                className="relative cursor-pointer rounded-lg overflow-hidden border border-border hover:border-primary/40 transition-colors"
+                style={{ aspectRatio: "9 / 16" }}
                 onClick={() => setSelected(t)}
               >
-                <div className="aspect-video bg-muted overflow-hidden">
-                  <img
-                    src={t.cover}
-                    alt={t.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                </div>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">{t.name}</CardTitle>
-                    <Badge variant="secondary">{t.category}</Badge>
+                <img
+                  src={t.cover}
+                  alt={t.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+                <div
+                  className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end"
+                  style={{
+                    background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)",
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white font-semibold text-sm">{t.name}</span>
+                    <Badge variant="secondary" className="text-xs">{t.category}</Badge>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-white/70 text-xs">
                     {t.type === "reel" ? `${t.clips} clips · ${t.duration}` : `${t.requiredPhotos} photos`}
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </TabsContent>
@@ -113,7 +115,15 @@ const Templates = () => {
 
             {/* Right: preview */}
             <div className="bg-muted flex items-center justify-center">
-              {selected?.cover ? (
+              {selected?.type === "reel" && selected?.previewUrl ? (
+                <video
+                  src={selected.previewUrl}
+                  autoPlay
+                  loop
+                  controls
+                  className="w-auto h-auto max-w-full max-h-[90vh] object-contain"
+                />
+              ) : selected?.cover ? (
                 <img
                   src={selected.cover}
                   alt={selected.name}
