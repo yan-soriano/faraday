@@ -10,48 +10,74 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Clock, Image, Play } from "lucide-react";
 import { templates, type Template } from "@/lib/templates";
 
 const Templates = () => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Template | null>(null);
+  const [activeTab, setActiveTab] = useState<"reel" | "photo">("reel");
+
+  const filtered = templates.filter((t) => t.type === activeTab);
 
   const handleUseTemplate = (t: Template) => {
     setSelected(null);
-    navigate(`/generate?template=${t.id}`);
+    const route = t.type === "reel" ? "/generate" : "/generate-posts";
+    navigate(`${route}?template=${t.id}`);
   };
 
   return (
     <div className="space-y-8 max-w-5xl">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Templates</h1>
-        <p className="text-muted-foreground mt-1">Browse and select a Reel template.</p>
+        <p className="text-muted-foreground mt-1">Browse and select a template.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {templates.map((t) => (
-          <Card
-            key={t.id}
-            className="cursor-pointer hover:border-primary/40 transition-colors"
-            onClick={() => setSelected(t)}
-          >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{t.name}</CardTitle>
-                <Badge variant="secondary">{t.category}</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{t.clips} clips · {t.duration}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "reel" | "photo")}>
+        <TabsList>
+          <TabsTrigger value="reel">Reel Templates</TabsTrigger>
+          <TabsTrigger value="photo">Photo Templates</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="mt-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filtered.map((t) => (
+              <Card
+                key={t.id}
+                className="cursor-pointer hover:border-primary/40 transition-colors overflow-hidden"
+                onClick={() => setSelected(t)}
+              >
+                <div className="aspect-video bg-muted overflow-hidden">
+                  <img
+                    src={t.cover}
+                    alt={t.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">{t.name}</CardTitle>
+                    <Badge variant="secondary">{t.category}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {t.type === "reel" ? `${t.clips} clips · ${t.duration}` : `${t.requiredPhotos} photos`}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Template Detail Modal */}
       <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="max-w-3xl p-0 overflow-hidden">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto p-0 overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Left: details */}
             <div className="p-6 flex flex-col justify-between">
@@ -85,15 +111,22 @@ const Templates = () => {
               </Button>
             </div>
 
-            {/* Right: video preview */}
-            <div className="bg-muted flex items-center justify-center min-h-[300px]">
-              <div className="text-center space-y-2 p-6">
-                <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Play className="h-8 w-8 text-primary" />
+            {/* Right: preview */}
+            <div className="bg-muted flex items-center justify-center">
+              {selected?.cover ? (
+                <img
+                  src={selected.cover}
+                  alt={selected.name}
+                  className="w-auto h-auto max-w-full max-h-[90vh] object-contain"
+                />
+              ) : (
+                <div className="text-center space-y-2 p-6">
+                  <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Play className="h-8 w-8 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Preview coming soon</p>
                 </div>
-                <p className="text-sm text-muted-foreground">Preview coming soon</p>
-                <p className="text-xs text-muted-foreground">Auto-playing looped video preview will appear here</p>
-              </div>
+              )}
             </div>
           </div>
         </DialogContent>
