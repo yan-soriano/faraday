@@ -23,7 +23,7 @@ export const templates: Template[] = [
     description: "Cinematic slow-motion reveal with dramatic speed ramps. Perfect for luxury product launches.",
     requiredPhotos: 4,
     tags: ["Cinematic", "Slow-Mo", "Luxury"],
-    cover: "/assets/reel-cover.jpg",
+    cover: "./public/cover.jpg",
   },
   {
     id: "smooth-glide",
