@@ -48,14 +48,14 @@ function ModelCard({ model, selected, onSelect }: { model: AIModel; selected: bo
         "relative w-full rounded-lg overflow-hidden cursor-pointer transition-all",
         selected ? "ring-2 ring-primary shadow-lg shadow-primary/20" : "ring-1 ring-border hover:ring-primary/40"
       )}
-      style={{ aspectRatio: "9 / 16" }}
+      style={{ aspectRatio: "1 / 1" }}
     >
       <img src={model.cover} alt={model.name} className="absolute inset-0 w-full h-full object-cover" />
       <div
-        className="absolute bottom-0 left-0 right-0 p-2"
+        className="absolute bottom-0 left-0 right-0 p-1.5"
         style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)" }}
       >
-        <span className="text-xs font-semibold text-white">{model.name}</span>
+        <span className="text-[10px] font-semibold text-white">{model.name}</span>
       </div>
     </button>
   );
@@ -68,9 +68,9 @@ function UploadCard({ onUpload }: { onUpload: (files: FileList) => void }) {
       <input ref={ref} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files && onUpload(e.target.files)} />
       <button
         onClick={() => ref.current?.click()}
-        className="aspect-square rounded-lg border-2 border-dashed border-border bg-muted/20 flex items-center justify-center hover:border-primary/40 transition-colors"
+        className="w-full h-full rounded-md border-2 border-dashed border-border bg-muted/20 flex items-center justify-center hover:border-primary/40 transition-colors"
       >
-        <Plus className="h-5 w-5 text-muted-foreground" />
+        <Plus className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
     </>
   );
@@ -91,16 +91,16 @@ function CatalogItemCard({
     <button
       onClick={onSelect}
       className={cn(
-        "relative aspect-square rounded-lg overflow-hidden transition-all",
+        "relative w-full h-full rounded-md overflow-hidden transition-all",
         selected ? "ring-2 ring-primary shadow-md shadow-primary/20" : "ring-1 ring-border hover:ring-primary/40"
       )}
     >
       <img src={src} alt="" className="w-full h-full object-cover" />
       <button
         onClick={(e) => { e.stopPropagation(); onRemove(); }}
-        className="absolute top-1 right-1 rounded-full bg-destructive/90 text-destructive-foreground p-0.5 z-10 hover:bg-destructive"
+        className="absolute top-0.5 right-0.5 rounded-full bg-destructive/90 text-destructive-foreground p-0.5 z-10 hover:bg-destructive"
       >
-        <X className="h-3 w-3" />
+        <X className="h-2.5 w-2.5" />
       </button>
     </button>
   );
@@ -223,13 +223,13 @@ const Catalog = () => {
           </ScrollArea>
         </div>
 
-        {/* CENTER — Model Preview */}
-        <div className="flex items-center justify-center rounded-lg border border-border bg-muted/10 min-h-[400px]">
+        {/* CENTER — Model Preview (9:16) */}
+        <div className="flex items-center justify-center rounded-lg border border-border bg-muted/10" style={{ aspectRatio: "9 / 16" }}>
           {selectedModel ? (
             <img
               src={selectedModel.fullBody}
               alt={selectedModel.name}
-              className="max-h-[80vh] w-auto object-contain"
+              className="w-full h-full object-contain"
             />
           ) : (
             <div className="flex flex-col items-center gap-3 text-muted-foreground">
@@ -244,20 +244,23 @@ const Catalog = () => {
           <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">Catalog Items</p>
 
           <ScrollArea className="h-[calc(100vh-320px)]">
-            <div className="space-y-5 pr-2">
+            <div className="space-y-3 pr-2">
               {CATEGORIES.map(({ key, label }) => (
-                <div key={key} className="space-y-1.5">
-                  <p className="text-xs font-semibold text-foreground">{label}</p>
-                  <div className="grid grid-cols-4 gap-2">
-                    <UploadCard onUpload={(files) => handleCatalogUpload(key, files)} />
+                <div key={key} className="space-y-1">
+                  <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">{label}</p>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1">
+                    <div className="flex-shrink-0 w-10 h-10">
+                      <UploadCard onUpload={(files) => handleCatalogUpload(key, files)} />
+                    </div>
                     {catalog[key].map((url, i) => (
-                      <CatalogItemCard
-                        key={i}
-                        src={url}
-                        selected={selectedItems[key] === url}
-                        onSelect={() => handleSelectItem(key, url)}
-                        onRemove={() => handleRemoveCatalogItem(key, i)}
-                      />
+                      <div key={i} className="flex-shrink-0 w-10 h-10">
+                        <CatalogItemCard
+                          src={url}
+                          selected={selectedItems[key] === url}
+                          onSelect={() => handleSelectItem(key, url)}
+                          onRemove={() => handleRemoveCatalogItem(key, i)}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
