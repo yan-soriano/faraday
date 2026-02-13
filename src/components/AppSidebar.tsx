@@ -4,6 +4,7 @@ import {
   Layers,
   Sparkles,
   ImagePlus,
+  ShoppingBag,
   History,
   CreditCard,
   Settings,
@@ -26,6 +27,7 @@ const mainNav = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Generate Reel", url: "/generate", icon: Sparkles },
   { title: "Generate Post", url: "/generate-posts", icon: ImagePlus },
+  { title: "Catalog", url: "/catalog", icon: ShoppingBag },
   { title: "Templates", url: "/templates", icon: Layers },
   { title: "My Reels", url: "/history", icon: Film },
 ];
