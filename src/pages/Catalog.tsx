@@ -208,12 +208,13 @@ const Catalog = () => {
       </div>
 
       {/* 3-column layout */}
-      <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_1fr] lg:grid-cols-[200px_1fr_minmax(320px,420px)] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[100px_1fr_1fr] lg:grid-cols-[120px_1fr_minmax(280px,380px)] gap-3">
         {/* LEFT — AI Models */}
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">AI Models</p>
-          <ScrollArea className="h-[calc(100vh-220px)]">
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-2 pr-2">
+          <div className="overflow-y-auto max-h-[calc(100vh-220px)] space-y-1.5" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+            <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
+            <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5 hide-scrollbar">
               {models.map((m) => (
                 <ModelCard
                   key={m.id}
@@ -223,59 +224,28 @@ const Catalog = () => {
                 />
               ))}
             </div>
-          </ScrollArea>
+          </div>
         </div>
 
-        {/* CENTER — Model Preview (9:16) */}
-        <div className="flex items-center justify-center rounded-lg border border-border bg-muted/10 max-h-[600px]" style={{ aspectRatio: "9 / 16" }}>
-          {selectedModel ? (
-            <img
-              src={selectedModel.fullBody}
-              alt={selectedModel.name}
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-3 text-muted-foreground">
-              <User className="h-12 w-12" />
-              <p className="text-sm font-medium">Select a model to begin</p>
-            </div>
-          )}
-        </div>
-
-        {/* RIGHT — Catalog Items */}
-        <div className="space-y-4">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">Catalog Items</p>
-
-          <ScrollArea className="h-[calc(100vh-320px)]">
-            <div className="space-y-3 pr-2">
-              {CATEGORIES.map(({ key, label }) => (
-                <div key={key} className="space-y-1">
-                  <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">{label}</p>
-                  <div className="flex gap-1.5 overflow-x-auto pb-1">
-                    {catalog[key].length === 0 ? (
-                      <div className="flex-shrink-0 w-10 h-10">
-                        <UploadCard onUpload={(files) => handleCatalogUpload(key, files)} />
-                      </div>
-                    ) : (
-                      catalog[key].map((url, i) => (
-                        <div key={i} className="flex-shrink-0 w-10 h-10">
-                          <CatalogItemCard
-                            src={url}
-                            selected={selectedItems[key] === url}
-                            onSelect={() => handleSelectItem(key, url)}
-                            onRemove={() => handleRemoveCatalogItem(key, i)}
-                          />
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+        {/* CENTER — Model Preview (9:16) + Generate Button */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex items-center justify-center rounded-lg border border-border bg-muted/10 max-h-[420px] w-full" style={{ aspectRatio: "9 / 16" }}>
+            {selectedModel ? (
+              <img
+                src={selectedModel.fullBody}
+                alt={selectedModel.name}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <User className="h-10 w-10" />
+                <p className="text-xs font-medium">Select a model to begin</p>
+              </div>
+            )}
+          </div>
 
           {loading && (
-            <div className="space-y-1">
+            <div className="w-full space-y-1">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Generating look…</span>
                 <span>{progress}%</span>
@@ -288,6 +258,37 @@ const Catalog = () => {
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             {loading ? `${progress}%` : "Generate Look"}
           </Button>
+        </div>
+
+        {/* RIGHT — Catalog Items */}
+        <div className="space-y-3">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">Catalog Items</p>
+
+          <div className="space-y-3">
+            {CATEGORIES.map(({ key, label }) => (
+              <div key={key} className="space-y-1">
+                <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">{label}</p>
+                <div className="flex gap-1.5 overflow-x-auto pb-1">
+                  {catalog[key].length === 0 ? (
+                    <div className="flex-shrink-0 w-10 h-10">
+                      <UploadCard onUpload={(files) => handleCatalogUpload(key, files)} />
+                    </div>
+                  ) : (
+                    catalog[key].map((url, i) => (
+                      <div key={i} className="flex-shrink-0 w-10 h-10">
+                        <CatalogItemCard
+                          src={url}
+                          selected={selectedItems[key] === url}
+                          onSelect={() => handleSelectItem(key, url)}
+                          onRemove={() => handleRemoveCatalogItem(key, i)}
+                        />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
