@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { postTemplates, type Template } from "@/lib/templates";
 
-const PLACEHOLDER_VIDEO = "https://www.instagram.com/reel/DPtn064CRsz/embed";
+const PLACEHOLDER_VIDEO = "./public/post-cover2.png";
 const MAX_PHOTOS = 4;
 
 const GeneratePosts = () => {

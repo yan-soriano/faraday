@@ -23,7 +23,8 @@ export const templates: Template[] = [
     description: "Cinematic slow-motion reveal with dramatic speed ramps. Perfect for luxury product launches.",
     requiredPhotos: 4,
     tags: ["Cinematic", "Slow-Mo", "Luxury"],
-    cover: "./public/cover.jpg",
+    cover: "./public/cover-reel.jpg",
+    previewUrl: "./public/reel2.mp4",
   },
   {
     id: "smooth-glide",
@@ -83,7 +84,7 @@ export const templates: Template[] = [
     description: "Clean single-image post optimized for Instagram grid consistency.",
     requiredPhotos: 1,
     tags: ["Grid", "Clean"],
-    cover: "/assets/photo-cover.jpg",
+    cover: "./public/gemini template.png",
   },
   {
     id: "post-carousel",
