@@ -142,8 +142,11 @@ const Catalog = () => {
     !!selectedItems.shoes;
 
   const handleCatalogUpload = (category: CatalogCategory, files: FileList) => {
-    const urls = Array.from(files).map((f) => URL.createObjectURL(f));
-    setCatalog((prev) => ({ ...prev, [category]: [...prev[category], ...urls] }));
+    const url = URL.createObjectURL(files[0]);
+    // Limit to 1 item per category: replace existing
+    setCatalog((prev) => ({ ...prev, [category]: [url] }));
+    // Auto-select the uploaded item
+    setSelectedItems((prev) => ({ ...prev, [category]: url }));
   };
 
   const handleRemoveCatalogItem = (category: CatalogCategory, index: number) => {
@@ -224,7 +227,7 @@ const Catalog = () => {
         </div>
 
         {/* CENTER — Model Preview (9:16) */}
-        <div className="flex items-center justify-center rounded-lg border border-border bg-muted/10" style={{ aspectRatio: "9 / 16" }}>
+        <div className="flex items-center justify-center rounded-lg border border-border bg-muted/10 max-h-[600px]" style={{ aspectRatio: "9 / 16" }}>
           {selectedModel ? (
             <img
               src={selectedModel.fullBody}
@@ -249,19 +252,22 @@ const Catalog = () => {
                 <div key={key} className="space-y-1">
                   <p className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">{label}</p>
                   <div className="flex gap-1.5 overflow-x-auto pb-1">
-                    <div className="flex-shrink-0 w-10 h-10">
-                      <UploadCard onUpload={(files) => handleCatalogUpload(key, files)} />
-                    </div>
-                    {catalog[key].map((url, i) => (
-                      <div key={i} className="flex-shrink-0 w-10 h-10">
-                        <CatalogItemCard
-                          src={url}
-                          selected={selectedItems[key] === url}
-                          onSelect={() => handleSelectItem(key, url)}
-                          onRemove={() => handleRemoveCatalogItem(key, i)}
-                        />
+                    {catalog[key].length === 0 ? (
+                      <div className="flex-shrink-0 w-10 h-10">
+                        <UploadCard onUpload={(files) => handleCatalogUpload(key, files)} />
                       </div>
-                    ))}
+                    ) : (
+                      catalog[key].map((url, i) => (
+                        <div key={i} className="flex-shrink-0 w-10 h-10">
+                          <CatalogItemCard
+                            src={url}
+                            selected={selectedItems[key] === url}
+                            onSelect={() => handleSelectItem(key, url)}
+                            onRemove={() => handleRemoveCatalogItem(key, i)}
+                          />
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               ))}
