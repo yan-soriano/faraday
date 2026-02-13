@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
 import Generate from "./pages/Generate";
 import GeneratePosts from "./pages/GeneratePosts";
+import Catalog from "./pages/Catalog";
 import Templates from "./pages/Templates";
 import ReelHistory from "./pages/ReelHistory";
 import Subscription from "./pages/Subscription";
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/generate" element={<Generate />} />
             <Route path="/generate-posts" element={<GeneratePosts />} />
+            <Route path="/catalog" element={<Catalog />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/history" element={<ReelHistory />} />
             <Route path="/subscription" element={<Subscription />} />
